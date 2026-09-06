@@ -1,0 +1,31 @@
+name: TabVault
+options:
+  bundleIdPrefix: com.usama
+packages:
+  GRDB:
+    url: https://github.com/groue/GRDB.swift.git
+    from: 6.27.0
+targets:
+  TabVault:
+    type: application
+    platform: macOS
+    deploymentTarget: "13.0"
+    sources: [TabVault]
+    settings:
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+    info:
+      path: TabVault/Info.plist
+      properties:
+        LSUIElement: true
+        NSAppleEventsUsageDescription: "Tab Vault needs to control your browser (Safari, Brave, or Chrome) to securely park and resume your tabs."
+    entitlements:
+      path: TabVault/TabVault.entitlements
+      properties:
+        com.apple.security.app-sandbox: true
+        com.apple.security.automation.apple-events: true
+        com.apple.security.temporary-exception.apple-events:
+          - com.apple.Safari
+          - com.brave.Browser
+          - com.google.Chrome
+    dependencies:
+      - package: GRDB

@@ -1,5 +1,6 @@
 # Tab Vault 🔖
 
+![Tab Vault Preview](assets/preview.png)
 ## The Problem
 As developers, students, and researchers, we constantly suffer from "tab fatigue." We leave dozens of tabs open across multiple browsers (Chrome, Brave, Safari) because we are afraid of losing our context. Keeping these tabs open indefinitely drains Mac memory (RAM), hogs CPU cycles, and kills battery life. 
 

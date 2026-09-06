@@ -33,3 +33,6 @@ This project uses [XcodeGen](https://github.com/yonaskolb/XcodeGen) to manage th
 1. Clone the repository.
 2. Run `xcodegen generate` in the root directory.
 3. Open `TabVault.xcodeproj` in Xcode 14+ and hit Run (`⌘R`).
+
+## 🤖 Built with AI
+This entire application was pair-programmed and built from scratch with the help of **Google Gemini** (Advanced Agentic Coding). From designing the native macOS architecture and SQLite database to writing the custom AppleScript browser integrations and App Sandbox rules, Tab Vault serves as a showcase of what AI-assisted software engineering can accomplish!

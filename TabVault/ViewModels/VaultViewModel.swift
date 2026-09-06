@@ -2,6 +2,7 @@ import Foundation
 import AppKit
 import GRDB
 import Combine
+import UniformTypeIdentifiers
 
 class VaultViewModel: ObservableObject {
     @Published var workspaces: [Workspace] = []
@@ -14,6 +15,19 @@ class VaultViewModel: ObservableObject {
     
     @Published var lastActiveBrowser: String? = nil
     @Published var highlightedTabId: Int64? = nil
+    
+    @Published var searchText: String = ""
+    
+    var filteredWorkspaces: [Workspace] {
+        if searchText.isEmpty {
+            return workspaces
+        } else {
+            return workspaces.filter { workspace in
+                guard let id = workspace.id, let tabs = tabsByWorkspace[id] else { return false }
+                return tabs.contains { $0.title.localizedCaseInsensitiveContains(searchText) || $0.url.localizedCaseInsensitiveContains(searchText) }
+            }
+        }
+    }
     
     init() {
         // Ensure Database is initialized
@@ -83,6 +97,16 @@ class VaultViewModel: ObservableObject {
             fetchData()
         } catch {
             print("Delete workspace error: \(error)")
+        }
+    }
+    
+    func renameWorkspace(id: Int64, to newName: String) {
+        guard !newName.isEmpty else { return }
+        do {
+            try DatabaseManager.shared.renameWorkspace(id: id, newName: newName)
+            fetchData()
+        } catch {
+            print("Rename workspace error: \(error)")
         }
     }
     
@@ -176,7 +200,12 @@ class VaultViewModel: ObservableObject {
     func resumeWorkspace(_ workspace: Workspace) {
         guard let id = workspace.id, let tabs = tabsByWorkspace[id] else { return }
         
-        for tab in tabs {
+        let tabsToResume = searchText.isEmpty ? tabs : tabs.filter {
+            $0.title.localizedCaseInsensitiveContains(searchText) ||
+            $0.url.localizedCaseInsensitiveContains(searchText)
+        }
+        
+        for tab in tabsToResume {
             resumeTab(tab)
         }
     }
@@ -190,5 +219,30 @@ class VaultViewModel: ObservableObject {
         } catch {
             print("Delete tab error: \(error)")
         }
+    }
+    
+    func generateMarkdownExport() -> String {
+        var markdown = ""
+        for workspace in workspaces {
+            markdown += "## \(workspace.name)\n"
+            if let id = workspace.id, let tabs = tabsByWorkspace[id] {
+                for tab in tabs {
+                    markdown += "- [\(tab.title.isEmpty ? tab.url : tab.title)](\(tab.url))\n"
+                }
+            }
+            markdown += "\n"
+        }
+        return markdown
+    }
+    
+    func promptExport() {
+        let markdown = generateMarkdownExport()
+        
+        // Post notification so AppDelegate can handle the export
+        NotificationCenter.default.post(
+            name: NSNotification.Name("TabVaultExport"),
+            object: nil,
+            userInfo: ["markdown": markdown]
+        )
     }
 }

@@ -24,6 +24,12 @@ class DatabaseManager {
             fatalError("Failed to initialize database: \(error)")
         }
     }
+    
+    func renameWorkspace(id: Int64, newName: String) throws {
+        try dbPool.write { db in
+            try db.execute(sql: "UPDATE workspace SET name = ? WHERE id = ?", arguments: [newName, id])
+        }
+    }
 
     private var migrator: DatabaseMigrator {
         var migrator = DatabaseMigrator()
